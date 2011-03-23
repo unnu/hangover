@@ -1,0 +1,7 @@
+if [[ -s "$rvm_path/environments/ruby-1.9.2-p136@hangover" ]] ; then
+  . "$rvm_path/environments/ruby-1.9.2-p136@hangover"
+else
+  rvm --create use  "ruby-1.9.2-p136@hangover"
+fi
+
+rvm wrapper ruby-1.9.2-p136@hangover textmate
