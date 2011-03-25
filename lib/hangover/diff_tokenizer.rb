@@ -1,5 +1,5 @@
 class DiffTokenizer
-  
+
   def initialize(text)
     lines = text.split("\n")
 

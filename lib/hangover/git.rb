@@ -1,12 +1,12 @@
 class Git
   def initialize(dir)
     repo = "#{dir}/.hangover"
-    #@git_options = "--git-dir=#{repo} --work-tree=#{dir}"
     ENV['GIT_DIR'] = repo
     ENV['GIT_WORK_TREE'] = dir
     
     unless File.exists?(repo)
-      p "Initializing new hanover repo at #{repo}"
+      # TODO: get name of repo from repo dir
+      p "Initializing new hangover repo at #{repo}"
       init
       add
       commit

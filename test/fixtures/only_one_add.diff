@@ -1,0 +1,11 @@
+tika:ruby-1.9.2-p136@hangover hangover[master*]$ git diff foo
+diff --git a/foo b/foo
+index 0619a69..8ce98f0 100644
+--- a/foo
++++ b/foo
+@@ -1,3 +1,4 @@
+ Das ist Zeile eins.
+ Das ist Zeile zwei.
++Eine dazu.
+ Das ist Zeile drei.
+\ No newline at end of file

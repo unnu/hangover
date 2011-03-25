@@ -1,4 +1,4 @@
 source "http://rubygems.org"
 
 gem "rb-fsevent"
-gem "grit"
+gem "activesupport"
