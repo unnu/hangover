@@ -1,16 +1,22 @@
-class Git
+class Repository
   def initialize(dir)
-    repo = "#{dir}/.hangover"
-    ENV['GIT_DIR'] = repo
+    @repository = "#{dir}/.hangover"
+    ENV['GIT_DIR'] = @repository
     ENV['GIT_WORK_TREE'] = dir
+  end
+  
+  def ensure_exists!
+    return if File.exists?(@repository)
     
-    unless File.exists?(repo)
-      # TODO: get name of repo from repo dir
-      p "Initializing new hangover repo at #{repo}"
-      init
-      add
-      commit
-    end
+    # TODO: get name of repo from repo dir
+    p "Initializing new hangover repo at #{@repository}"
+    init
+    add
+    commit
+  end
+  
+  def gitk
+    `gitk`
   end
   
   def init

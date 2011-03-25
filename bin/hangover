@@ -2,15 +2,11 @@
 require 'fileutils'
 require File.expand_path(File.dirname(__FILE__) + '/../lib/hangover')
 
-dir = ARGV.first
+command = ARGV.first
 
-def error(message)
-  $stderr.puts "ERROR: #{message}"
-  exit(1)
+begin
+  Hangover.new(`pwd`.chomp).__send__(command)
+#rescue => e
+#  $stderr.puts "ERROR: #{e.message}"
+#  exit(1)
 end
-
-error("No dir given!") unless dir
-dir = "#{FileUtils.pwd}/#{dir}" if dir !~ /^\//
-error("Dir '#{dir}' does not exist") unless File.exist?(dir)
-
-Hangover.new(dir)
