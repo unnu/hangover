@@ -1,35 +1,36 @@
+require 'rubygems'
+require 'bundler/setup'
 require 'rb-fsevent'
+require 'active_support/core_ext'
 
 $:.push(File.expand_path(File.dirname(__FILE__)))
 
 require 'hangover/repository'
 require 'hangover/diff_tokenizer'
 require 'hangover/commit_message_builder'
+require 'hangover/watch_dir'
 
 class Hangover
   
-  def initialize(dir)
-    @dir = expand_dir(dir)
+  def initialize(base_dir)
+    @base_dir = expand_dir(base_dir)
   end
   
   def start
     exit_if_running!
+    $stderr.puts "Hangover starting..."
+    daemonize!
     
-    @repository = Repository.new(@dir)
-    @repository.ensure_exists!
-    
-    @fsevent = FSEvent.new
-    on_change(@dir) do |diff|
+    WatchDir.new(@base_dir).on_change do |dir|
+      @repository = Repository.find(dir)
+      diff = @repository.diff
+      next if diff.blank?
+      
       tokenizer = DiffTokenizer.new(diff)
       message = CommitMessageBuilder.new(tokenizer.top_adds, tokenizer.top_subs).message
       @repository.add
       @repository.commit_a(message)
-      $stderr.puts message if true #$DEBUG
     end
-    
-    $stderr.puts "Hangover starting..."
-    daemonize!
-    @fsevent.run
   end
   
   def stop
@@ -43,24 +44,30 @@ class Hangover
     remove_pid if File.exist?(pid_file)
   end
   
+  def create
+    @repository = Repository.new(@base_dir)
+    @repository.exists!
+  end
+  
   def gitk
-    @repository.gitk
+    Repository.new(@base_dir).gitk
+  end
+  
+  def status
+    if running?
+      $stderr.puts "Hangover is running and watching #{@base_dir}"
+    else
+      $stderr.puts "Hangover NOT running."
+    end
   end
   
   private
-    def on_change(dir)
-      @fsevent.watch(dir, :latency => 0.5, :no_defer => true) do |directories|
-        diff = @repository.diff
-        unless directories.size == 1 && /\.git|\.hangover/ =~ directories.first || diff == ''
-          yield diff
-        end
-      end
-    end
-    
     def expand_dir(dir)
       raise ArgumentError, "No dir given!" unless dir
-      dir = "#{FileUtils.pwd}/#{dir}" if dir !~ /^\//
-      raise ArgumentError, "Dir '#{dir}' does not exist" unless File.exist?(dir)
+      
+      dir.replace("#{FileUtils.pwd}/#{dir}") if dir !~ /^\//
+      raise ArgumentError, "Dir '#{dir}' does not exist" unless File.directory?(dir)
+      
       dir
     end
     
@@ -73,15 +80,21 @@ class Hangover
     end
     
     def remove_pid
-      FileUtils.rm(pid_file)
+      FileUtils.rm(pid_file) if File.exist?(pid_file)
     end
     
     def pid_file
-      "#{@dir}/.hangover_pid"
+      "#{ENV['HOME']}/.hangover.pid"
     end
     
     def running?
       Process.kill(0, pid) == 1 if pid
+    rescue Errno::ESRCH
+      if File.exist?(pid_file)
+        $stderr.puts "Removing stale pid file."
+        remove_pid
+      end
+      false
     end
     
     def exit_if_running!
@@ -92,7 +105,7 @@ class Hangover
     end
     
     def daemonize!
-      Process.daemon
+      Process.daemon(true, true)
       write_pid
     end
 end

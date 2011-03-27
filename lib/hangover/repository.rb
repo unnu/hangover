@@ -1,11 +1,29 @@
+require 'pathname'
+
 class Repository
+  
+  NAME = '.hangover'
+  
+  class << self
+    def find(dir)
+      path = Pathname.new(dir).expand_path.realpath
+      
+      begin
+        try_path = path + NAME
+        return new(path.to_s) if try_path.directory?
+      end while (path = path.parent).to_s != '/'
+      
+      nil
+    end
+  end
+  
   def initialize(dir)
-    @repository = "#{dir}/.hangover"
+    @repository = "#{dir}/#{NAME}"
     ENV['GIT_DIR'] = @repository
     ENV['GIT_WORK_TREE'] = dir
   end
   
-  def ensure_exists!
+  def exists!
     return if File.exists?(@repository)
     
     # TODO: get name of repo from repo dir
