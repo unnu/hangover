@@ -1,5 +1,3 @@
-require 'rubygems'
-require 'bundler/setup'
 require 'rb-fsevent'
 require 'active_support/core_ext'
 
