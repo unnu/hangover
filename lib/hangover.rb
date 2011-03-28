@@ -21,6 +21,8 @@ class Hangover
     
     WatchDir.new(@base_dir).on_change do |dir|
       repository = Repository.find(dir)
+      next if repository.nil?
+      
       diff = repository.diff
       next if diff.blank?
       
