@@ -29,6 +29,10 @@ class Repository
     # TODO: get name of repo from repo dir
     p "Initializing new hangover repo at #{@repository}"
     init
+    File.open("#{@repository}/info/exclude", "w") do |f|
+      f.puts NAME
+      f.puts ".git"
+    end
     add
     commit_a("Initial commit")
   end
