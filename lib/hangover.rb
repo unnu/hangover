@@ -22,14 +22,15 @@ class Hangover
     daemonize!
     
     WatchDir.new(@base_dir).on_change do |dir|
-      @repository = Repository.find(dir)
-      diff = @repository.diff
+      repository = Repository.find(dir)
+      diff = repository.diff
       next if diff.blank?
       
       tokenizer = DiffTokenizer.new(diff)
+      
       message = CommitMessageBuilder.new(tokenizer.top_adds, tokenizer.top_subs).message
-      @repository.add
-      @repository.commit_a(message)
+      repository.add
+      repository.commit_a(message)
     end
   end
   
@@ -45,8 +46,7 @@ class Hangover
   end
   
   def create
-    @repository = Repository.new(@base_dir)
-    @repository.exists!
+    Repository.new(@base_dir).exists!
   end
   
   def gitk
@@ -59,6 +59,11 @@ class Hangover
     else
       $stderr.puts "Hangover NOT running."
     end
+  end
+  
+  def git(*args)
+    args_string = args.join(' ')
+    $stderr.puts Repository.new(@base_dir).git(args_string)
   end
   
   private

@@ -60,4 +60,8 @@ class Repository
   def clean
     `git clean`
   end
+  
+  def git(args_string)
+    `git #{args_string}`
+  end
 end
