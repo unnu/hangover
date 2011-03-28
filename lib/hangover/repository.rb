@@ -24,17 +24,19 @@ class Repository
   end
   
   def exists!
-    return if File.exists?(@repository)
+    if File.directory?(@repository)
+      Hangover.logger.warn "Repository already exists at #{@repository}"
+      return
+    end
     
-    # TODO: get name of repo from repo dir
-    p "Initializing new hangover repo at #{@repository}"
+    Hangover.logger.info "Initializing new hangover repo at #{@repository}"
     init
     File.open("#{@repository}/info/exclude", "w") do |f|
       f.puts NAME
       f.puts ".git"
     end
-    add
-    commit_a("Initial commit")
+    add_all
+    commit_all("Initial commit")
   end
   
   def gitk
@@ -42,30 +44,31 @@ class Repository
   end
   
   def init
-    `git init`
+    git 'init'
   end
   
-  def add
-    `git add .`
+  def add_all
+    git 'add .'
   end
 
   def commit(message, args = '')
-    `git commit #{args} -m "#{message}"`
+    git "commit #{args} -m \"#{message}\""
   end
   
-  def commit_a(message)
+  def commit_all(message)
     commit(message, '-a')
   end
   
   def diff
-    `git diff --unified=0`
+    git 'diff --unified=0'
   end
 
   def clean
-    `git clean`
+    git 'clean'
   end
   
-  def git(args_string)
-    `git #{args_string}`
+  def git(args)
+    Hangover.logger.debug { "git #{args}" }
+    `git #{args}`
   end
 end

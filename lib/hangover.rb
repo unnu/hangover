@@ -1,5 +1,6 @@
 require 'rb-fsevent'
 require 'active_support/core_ext'
+require 'logger'
 
 $:.push(File.expand_path(File.dirname(__FILE__)))
 
@@ -10,13 +11,17 @@ require 'hangover/watch_dir'
 
 class Hangover
   
+  cattr_accessor :logger
+  @@logger = Logger.new($stderr)
+  @@logger.level = $HANGOVER_DEBUG ? Logger::DEBUG : Logger::INFO
+  
   def initialize(base_dir)
     @base_dir = expand_dir(base_dir)
   end
   
-  def start
+  def start(options)
     exit_if_running!
-    $stderr.puts "Hangover starting..."
+    logger.info "Hangover starting..."
     daemonize!
     
     WatchDir.new(@base_dir).on_change do |dir|
@@ -29,41 +34,40 @@ class Hangover
       tokenizer = DiffTokenizer.new(diff)
       
       message = CommitMessageBuilder.new(tokenizer.top_adds, tokenizer.top_subs).message
-      repository.add
-      repository.commit_a(message)
+      repository.add_all
+      repository.commit_all(message)
     end
   end
   
-  def stop
+  def stop(options)
     if running?
       Process.kill(15, pid)
-      $stderr.puts "Hangover stopped."
+      logger.info "Hangover stopped."
     else
-      $stderr.puts "Hangover not running."
+      logger.info "Hangover not running."
     end
   ensure
     remove_pid if File.exist?(pid_file)
   end
   
-  def create
+  def create(options)
     Repository.new(@base_dir).exists!
   end
   
-  def gitk
+  def gitk(options)
     Repository.new(@base_dir).gitk
   end
   
-  def status
+  def status(options)
     if running?
-      $stderr.puts "Hangover is running and watching #{@base_dir}"
+      logger.info "Hangover is running and watching #{@base_dir}"
     else
-      $stderr.puts "Hangover NOT running."
+      logger.info "Hangover NOT running."
     end
   end
   
-  def git(*args)
-    args_string = args.join(' ')
-    $stderr.puts Repository.new(@base_dir).git(args_string)
+  def git(options)
+    logger.info Repository.new(@base_dir).git(options[:args])
   end
   
   private
@@ -96,7 +100,7 @@ class Hangover
       Process.kill(0, pid) == 1 if pid
     rescue Errno::ESRCH
       if File.exist?(pid_file)
-        $stderr.puts "Removing stale pid file."
+        logger.info "Removing stale pid file."
         remove_pid
       end
       false
@@ -105,12 +109,16 @@ class Hangover
     def exit_if_running!
       return unless running?
 
-      $stderr.puts "Hangover already running."
+      logger.info "Hangover already running."
       exit(0)
     end
     
     def daemonize!
       Process.daemon(true, true)
       write_pid
+    end
+    
+    def logger
+      self.class.logger
     end
 end

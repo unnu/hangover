@@ -1,11 +1,31 @@
 #!/usr/bin/env ruby
 require 'fileutils'
+require 'optparse'
+
+command = ARGV.shift
+ARGV.unshift('-h') if command == '-h'
+options = {}
+
+if command == 'git'
+  options[:args] = ARGV.join(' ')
+else
+  OptionParser.new do |opts|
+    opts.banner = "Usage: hangover <command> [options]"
+    opts.on("-d", "--debug", "Generate debug output on $stderr") do |d|
+      $HANGOVER_DEBUG = true
+    end
+    opts.on("-h", "--help", "Display this help screen") do
+      puts opts
+      exit
+    end
+  end.parse!
+end
+
+# require after options have been parsed to respect $HANGOVER_DEBUG
 require File.expand_path(File.dirname(__FILE__) + '/../lib/hangover')
 
-command = ARGV.first
-
 begin
-  Hangover.new(`pwd`.chomp).__send__(command)
+  Hangover.new(`pwd`.chomp).__send__(command, options)
 #rescue => e
 #  $stderr.puts "ERROR: #{e.message}"
 #  exit(1)
