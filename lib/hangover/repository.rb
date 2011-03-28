@@ -30,7 +30,7 @@ class Repository
     p "Initializing new hangover repo at #{@repository}"
     init
     add
-    commit
+    commit_a("Initial commit")
   end
   
   def gitk
