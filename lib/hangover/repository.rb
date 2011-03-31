@@ -42,6 +42,10 @@ class Repository
   def gitk
     `gitk`
   end
+    
+  def gource
+    `gource`
+  end
   
   def init
     git 'init'
