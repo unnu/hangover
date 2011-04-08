@@ -32,8 +32,8 @@ class Hangover
       next if diff.blank?
       
       tokenizer = DiffTokenizer.new(diff)
-      
       message = CommitMessageBuilder.new(tokenizer.top_adds, tokenizer.top_subs).message
+
       repository.add_all
       repository.commit_all(message)
     end
@@ -100,7 +100,7 @@ class Hangover
       Process.kill(0, pid) == 1 if pid
     rescue Errno::ESRCH
       if File.exist?(pid_file)
-        logger.info "Removing stale pid file."
+        logger.warn "Removing stale pid file."
         remove_pid
       end
       false
