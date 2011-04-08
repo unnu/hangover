@@ -30,7 +30,7 @@ EOS
     end
     opts.on("-h", "--help", "Display this help screen") do
       puts opts
-      puts "\nhangover was written by Norman Timmler at tmp8 in 2011 and is licensed under MIT."
+      puts "\nCopyright (c) Norman Timmler at tmp8 in 2011. Licensed under MIT."
       exit
     end
   end.parse!
