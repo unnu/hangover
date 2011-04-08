@@ -3,19 +3,34 @@ require 'fileutils'
 require 'optparse'
 
 command = ARGV.shift
-ARGV.unshift('-h') if command == '-h'
+ARGV.unshift('-h') if command == '-h' || command.nil?
 options = {}
 
 if command == 'git'
   options[:args] = ARGV.join(' ')
 else
   OptionParser.new do |opts|
-    opts.banner = "Usage: hangover <command> [options]"
+    opts.banner = <<-EOS
+Usage: hangover <command> [options]
+
+Commands:
+
+    start  - Tracks all file changes within current directory and it's subdirectories.
+    stop   - Stops hangover.
+    status - Shows if hangover is running and wich directory is tracked.
+    create - Creates a hangover repository in current directory.
+    git    - Tunnels git commands on the hangover repository.
+    gitk   - Starts gitk for the hangover repository.
+
+Options:
+
+EOS
     opts.on("-d", "--debug", "Generate debug output on $stderr") do |d|
       $HANGOVER_DEBUG = true
     end
     opts.on("-h", "--help", "Display this help screen") do
       puts opts
+      puts "\nhangover was written by Norman Timmler at tmp8 in 2011 and is licensed under MIT."
       exit
     end
   end.parse!
