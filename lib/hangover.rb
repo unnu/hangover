@@ -57,6 +57,10 @@ class Hangover
   def gitk(options)
     Repository.new(@base_dir).gitk
   end
+    
+  def gource(options)
+    Repository.new(@base_dir).gource
+  end
   
   def status(options)
     if running?
