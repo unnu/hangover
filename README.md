@@ -7,15 +7,15 @@ Hangover is **time travel** (except the future) **for your source code** directo
 Usage
 -----
 
-Start hangover in the directory from witch you want to track all changes by running
+Start hangover in the directory from which you want to track all changes.
 
 `hangover start`
 
-Create a hangover repository in the same directory with
+Create a hangover repository in the same directory.
 
 `hangover create`
 
-All changes within this directory and it's subdirectory go into this repository.
+All changes within this directory and it's subdirectories go into this repository.
 
 
 Commands
@@ -27,9 +27,9 @@ Commands
     
     start  - Tracks all file changes within current directory and it's subdirectories.
     stop   - Stops hangover.
-    status - Shows if hangover is running and wich directory is tracked.
+    status - Shows if hangover is running and which directory is tracked.
     create - Creates a hangover repository in current directory.
-    git    - Tunnels git commands on the hangover repository.
+    git    - Tunnels git commands to the hangover repository.
     gitk   - Starts gitk for the hangover repository.
 
 
@@ -42,7 +42,7 @@ Given you want to restore your project directory like it was half an hour ago. O
 Multiple hangover repositories
 ------------------------------
 
-The hangover repositories are stored in a `.hangover` directory. You can create multiple repositories in different places to separate projects. 
+The hangover repositories are stored in a `.hangover` directory. You can create multiple repositories in subdirectories to separate projects. 
 
     projects
      \_ .hangover
@@ -52,4 +52,4 @@ The hangover repositories are stored in a `.hangover` directory. You can create 
             images
             stylesheets
 
-In this example all changes in the `homepage` directory got to the `.hangover` repository hanging directly under `projects`. All changes in `customer_website` and it's subdirectories get tracked in it's own repository.
+In this example all changes in the `homepage` directory got to the `.hangover` repository directly under `projects`. All changes in `customer_website` and it's subdirectories get tracked in it's own repository.
